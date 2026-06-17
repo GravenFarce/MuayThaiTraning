@@ -20,7 +20,7 @@ The one automated check in this repo is a data-integrity sanity check for `days-
 ```bash
 node -e "
 const { DAYS } = require('./days-data.js');
-const expected = { A: { count: 28, seconds: 2130 }, B: { count: 47, seconds: 2335 }, C: { count: 30, seconds: 2400 } };
+const expected = { A: { count: 14, seconds: 930 }, B: { count: 24, seconds: 1440 }, C: { count: 16, seconds: 1200 } };
 let ok = true;
 for (const id of Object.keys(expected)) {
   const ivs = DAYS[id].intervals;
@@ -47,7 +47,7 @@ Three top-level views toggled via an `.active` class (no router):
 
 Each day (`'A'`, `'B'`, `'C'`) has `{ title, subtitle, warmupHtml, sections, cooldownHtml, intervals }`. `intervals` is a **fully unrolled** flat list — every set/round of every exercise is its own named entry (e.g. `"Jab+Cross (1/3)"`, `"Fekvőtámasz (kör 2/3)"`) with explicit `"Pihenő"` (rest) entries interspersed, rather than relying on the timer's round-repeat mechanism. This is why `rounds` is always set to `1` when a day is selected — the day's own repetition is already baked into the array. The Rounds +/- control stays fully functional regardless (a user can still multiply the whole day's sequence if they want).
 
-Any PDF section titled "Bemelegítés" (warm-up) or containing "Levezetés" (cooldown) is presentational only — it appears in `warmupHtml`/`cooldownHtml`/`sections` for the left panel, but never contributes intervals to the timer.
+Any PDF section titled "Bemelegítés" (warm-up) or containing "Levezetés" (cooldown) is presentational only — it appears in `warmupHtml`/`cooldownHtml`/`sections` for the left panel, but never contributes intervals to the timer. The same goes for bodyweight strength/conditioning circuits done off the bag (e.g. Day A's "Váll + Mellkas erőkör", Day B's "Has erőkör", Day C's "Komplex kondíciós kör") — they're listed as tables in `sections` for reference, but only **zsákon** (bag-work: technique combos, kicks, the bag-based cardio finisher) gets a preloaded timer interval.
 
 ### Setup/timer engine (`app.js`, unchanged from the original single-file version)
 
