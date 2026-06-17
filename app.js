@@ -401,12 +401,15 @@ document.getElementById('stopBtn').addEventListener('click', () => {
 // ──────────────────────────────────────────────────────────────
 let currentDayId = null;
 
+const WARMUP_COLOR = '#3F9142';
+const COOLDOWN_COLOR = '#707070';
+
 function renderDayButtons() {
   const wrap = document.getElementById('dayButtons');
   wrap.innerHTML = Object.keys(DAYS).map(id => {
     const day = DAYS[id];
     return `
-      <button class="day-btn" data-day="${id}">
+      <button class="day-btn" data-day="${id}" style="border-left-color:${day.accentColor}">
         ${esc(day.title)}
         <span class="day-btn-sub">${esc(day.subtitle)}</span>
       </button>
@@ -417,7 +420,7 @@ function renderDayButtons() {
 function renderPlanSection(section) {
   return `
     <div class="plan-block">
-      <h2>${esc(section.title)}</h2>
+      <h2 style="background:${section.color};color:#fff">${esc(section.title)}</h2>
       <table class="plan-table">
         <thead><tr><th>Gyakorlat</th><th>Sorozat / Idő</th></tr></thead>
         <tbody>
@@ -433,14 +436,14 @@ function renderPlanPanel(dayId) {
   const panel = document.getElementById('planPanel');
 
   const warmupBlock = day.warmupHtml
-    ? `<div class="plan-block"><h2>Bemelegítés</h2>${day.warmupHtml}</div>`
+    ? `<div class="plan-block"><h2 style="background:${WARMUP_COLOR};color:#fff">Bemelegítés</h2>${day.warmupHtml}</div>`
     : '';
   const cooldownBlock = day.cooldownHtml
-    ? `<div class="plan-block"><h2>Levezetés</h2>${day.cooldownHtml}</div>`
+    ? `<div class="plan-block"><h2 style="background:${COOLDOWN_COLOR};color:#fff">Levezetés</h2>${day.cooldownHtml}</div>`
     : '';
 
   panel.innerHTML = `
-    <h1 class="plan-title">${esc(day.title)}</h1>
+    <h1 class="plan-title" style="color:${day.accentColor}">${esc(day.title)}</h1>
     <p class="plan-subtitle">${esc(day.subtitle)}</p>
     ${warmupBlock}
     ${day.sections.map(renderPlanSection).join('')}

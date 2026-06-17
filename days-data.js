@@ -2,10 +2,12 @@ const DAYS = {
   A: {
     title: 'A nap — Váll + Mellkas + Muay Thai alapok',
     subtitle: '45–50 perc · pl. Hétfő',
+    accentColor: '#C0392B',
     warmupHtml: '<p>Helyben futás magas térdemeléssel — 3 perc. Dinamikus vállkörzés előre-hátra — 20 ism. Mellkasnyitás (karok oldalra tárva, összecsukva) — 15 ism. Árnyékbox lazán, guardban — 2 perc.</p>',
     sections: [
       {
         title: 'Muay Thai technikaépítés — zsákon (8–22 perc)',
+        color: '#2C6FA8',
         rows: [
           { exercise: 'Jab + Cross — csípőrotációval', detail: '3×2 perc, 30 mp pihenő' },
           { exercise: 'Hook — könyök szögben, mellkasból indítva', detail: '2×2 perc, 30 mp pihenő' },
@@ -14,6 +16,7 @@ const DAYS = {
       },
       {
         title: 'Váll + Mellkas erőkör — 3 forduló (22–42 perc, 60 mp pihenő fordulók között)',
+        color: '#C0392B',
         rows: [
           { exercise: 'Fekvőtámasz (lassú, 2-1-2 tempó)', detail: '12 ism.' },
           { exercise: 'Egykezes vállnyomás állva', detail: '10 ism./oldal' },
@@ -43,10 +46,12 @@ const DAYS = {
   B: {
     title: 'B nap — Has + Rúgástechnikák + Kardio',
     subtitle: '50–55 perc · pl. Szerda',
+    accentColor: '#2C6FA8',
     warmupHtml: '<p>Helyben futás magas térdemeléssel — 2 perc. Jumping jack — 2 perc. Csípőkörzés, bokamobilizáció — 2×1 perc.</p>',
     sections: [
       {
         title: 'Muay Thai rúgások — zsákon (8–28 perc)',
+        color: '#2C6FA8',
         rows: [
           { exercise: 'Low kick (combra, sípcsont belső éle)', detail: '3×2 perc, 30 mp pihenő' },
           { exercise: 'Middle kick (csípő nyitás, teljes rotáció)', detail: '3×2 perc, 30 mp pihenő' },
@@ -55,6 +60,7 @@ const DAYS = {
       },
       {
         title: 'Has erőkör — 4 forduló (28–46 perc, 45 mp pihenő fordulók között)',
+        color: '#C0392B',
         rows: [
           { exercise: 'Plank', detail: '40 mp' },
           { exercise: 'Bicycle crunch', detail: '20 ism./oldal' },
@@ -65,6 +71,7 @@ const DAYS = {
       },
       {
         title: 'Kardio finish — zsákon (46–54 perc)',
+        color: '#8B5A2B',
         rows: [
           { exercise: 'Zsákos intervall', detail: '4× (30 mp max intenzitás zsákon · 30 mp lassú árnyékbox)' }
         ]
@@ -101,10 +108,12 @@ const DAYS = {
   C: {
     title: 'C nap — Teljes test kombók + Core integráció',
     subtitle: '50–55 perc · pl. Péntek / Szombat',
+    accentColor: '#2E8B57',
     warmupHtml: '<p>Burpee lassítva, bemelegítő tempóban — 2 perc. Dinamikus nyújtás: váll, csípő, boka. Árnyékbox wai kru stílusban — 3 perc.</p>',
     sections: [
       {
         title: 'Kombók zsákon (8–30 perc, minden kombó 2×2 perc, 30 mp pihenő)',
+        color: '#2C6FA8',
         rows: [
           { exercise: '1. Jab → Cross → Hook → Cross', detail: 'Alap 4 ütéses sorozat' },
           { exercise: '2. Teep → Jab → Cross → Middle kick', detail: 'Távolságváltás' },
@@ -114,6 +123,7 @@ const DAYS = {
       },
       {
         title: 'Komplex kondíciós kör — 3 forduló (30–48 perc, 90 mp munka, 60 mp pihenő fordulónként)',
+        color: '#C0392B',
         rows: [
           { exercise: 'Burpee', detail: '10 ism.' },
           { exercise: 'Fekvőtámasz → rögtön egykezes vállnyomás', detail: '8 + 8 ism.' },
@@ -123,6 +133,7 @@ const DAYS = {
       },
       {
         title: 'Core + Levezetés — matacon (48–55 perc)',
+        color: '#707070',
         rows: [
           { exercise: 'Oblique crunch (ferde hasizom)', detail: '3×15 ism./oldal' },
           { exercise: 'Pigeon pose (csípő nyitás)', detail: '60 mp/oldal' },
