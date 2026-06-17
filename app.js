@@ -414,6 +414,40 @@ function renderDayButtons() {
   }).join('');
 }
 
+function renderPlanSection(section) {
+  return `
+    <div class="plan-block">
+      <h2>${esc(section.title)}</h2>
+      <table class="plan-table">
+        <thead><tr><th>Gyakorlat</th><th>Sorozat / Idő</th></tr></thead>
+        <tbody>
+          ${section.rows.map(r => `<tr><td>${esc(r.exercise)}</td><td>${esc(r.detail)}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderPlanPanel(dayId) {
+  const day = DAYS[dayId];
+  const panel = document.getElementById('planPanel');
+
+  const warmupBlock = day.warmupHtml
+    ? `<div class="plan-block"><h2>Bemelegítés</h2>${day.warmupHtml}</div>`
+    : '';
+  const cooldownBlock = day.cooldownHtml
+    ? `<div class="plan-block"><h2>Levezetés</h2>${day.cooldownHtml}</div>`
+    : '';
+
+  panel.innerHTML = `
+    <h1 class="plan-title">${esc(day.title)}</h1>
+    <p class="plan-subtitle">${esc(day.subtitle)}</p>
+    ${warmupBlock}
+    ${day.sections.map(renderPlanSection).join('')}
+    ${cooldownBlock}
+  `;
+}
+
 function selectDay(dayId) {
   const day = DAYS[dayId];
   if (!day) return;
@@ -427,6 +461,7 @@ function selectDay(dayId) {
   }));
   rounds = 1;
   renderSetup();
+  renderPlanPanel(dayId);
 
   document.getElementById('landingView').classList.remove('active');
   document.getElementById('dayView').classList.add('active');
