@@ -239,6 +239,77 @@ body {
 /* Done state */
 .done-label { font-size: 3rem; font-weight: 800; margin: 20px 0; }
 
+/* ─────────────── LANDING VIEW ─────────────── */
+#landingView {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+#landingView.active { display: flex; }
+
+.landing-inner { max-width: 480px; width: 100%; text-align: center; }
+.landing-inner h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+.landing-sub { font-size: 1.1rem; opacity: .8; margin-bottom: 28px; }
+
+#dayButtons { display: flex; flex-direction: column; gap: 16px; }
+.day-btn {
+  background: #fff;
+  border: 2.5px solid #222;
+  border-radius: 14px;
+  padding: 20px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s;
+}
+.day-btn:hover { background: #f0f0f0; }
+.day-btn-sub {
+  display: block;
+  font-size: .85rem;
+  font-weight: 600;
+  opacity: .7;
+  margin-top: 4px;
+}
+
+/* ─────────────── DAY VIEW (split layout) ─────────────── */
+#dayView { display: none; min-height: 100vh; }
+#dayView.active { display: flex; }
+
+#planPanel {
+  flex: 1 1 50%;
+  min-width: 0;
+  overflow-y: auto;
+  max-height: 100vh;
+  padding: 28px 24px;
+  background: #fff;
+}
+
+#trainerPanel {
+  flex: 1 1 50%;
+  min-width: 0;
+  overflow-y: auto;
+  max-height: 100vh;
+  padding: 28px 20px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-back {
+  align-self: flex-start;
+  background: #fff;
+  border: 2.5px solid #222;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: .95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 18px;
+  transition: background .15s;
+}
+.btn-back:hover { background: #f0f0f0; }
+
 /* ─────────────── MOBILE ─────────────── */
 @media (max-width: 600px) {
   body { padding: 16px 12px 32px; }
@@ -270,4 +341,7 @@ body {
     font-size: 2rem;
     max-width: 100%;
   }
+
+  #dayView.active { flex-direction: column; }
+  #planPanel, #trainerPanel { max-height: none; }
 }

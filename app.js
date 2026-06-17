@@ -397,9 +397,57 @@ document.getElementById('stopBtn').addEventListener('click', () => {
 });
 
 // ──────────────────────────────────────────────────────────────
-// Init with defaults
+// Day selection
 // ──────────────────────────────────────────────────────────────
-addInterval('Interval 1', '#2B00FF', 20);
-addInterval('Rest',       '#BBDD00', 10);
-addInterval('Interval 2', '#CC2222', 120);
-addInterval('Rest',       '#6666CC', 30);
+let currentDayId = null;
+
+function renderDayButtons() {
+  const wrap = document.getElementById('dayButtons');
+  wrap.innerHTML = Object.keys(DAYS).map(id => {
+    const day = DAYS[id];
+    return `
+      <button class="day-btn" data-day="${id}">
+        ${esc(day.title)}
+        <span class="day-btn-sub">${esc(day.subtitle)}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function selectDay(dayId) {
+  const day = DAYS[dayId];
+  if (!day) return;
+
+  currentDayId = dayId;
+  intervals = day.intervals.map(iv => ({
+    id: nextId++,
+    name: iv.name,
+    color: iv.color,
+    seconds: iv.seconds
+  }));
+  rounds = 1;
+  renderSetup();
+
+  document.getElementById('landingView').classList.remove('active');
+  document.getElementById('dayView').classList.add('active');
+}
+
+function backToLanding() {
+  if (tickHandle) { clearInterval(tickHandle); tickHandle = null; }
+  document.getElementById('timerView').classList.remove('active');
+  document.getElementById('setupView').classList.remove('hidden');
+  document.getElementById('timerName').style.color = '';
+
+  document.getElementById('dayView').classList.remove('active');
+  document.getElementById('landingView').classList.add('active');
+  currentDayId = null;
+}
+
+document.getElementById('dayButtons').addEventListener('click', e => {
+  const btn = e.target.closest('[data-day]');
+  if (btn) selectDay(btn.dataset.day);
+});
+
+document.getElementById('backBtn').addEventListener('click', backToLanding);
+
+renderDayButtons();
