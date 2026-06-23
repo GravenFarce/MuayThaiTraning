@@ -4,9 +4,9 @@
 const COLORS = ['#FFA500','#CC2222','#6666CC','#BBDD00','#00AABB','#FF6688','#22AA66','#EE7722'];
 const CIRCUMFERENCE = 2 * Math.PI * 104; // ≈ 653.45
 
-let intervals = [];
-let rounds = 6;
+let groups = [];           // [{ name, detail, rounds, intervals: [{id,name,color,seconds}] }]
 let nextId = 1;
+let activeGroupIdx = null; // which group's timer is currently running
 
 // Timer
 let seq = [];
@@ -17,6 +17,7 @@ let tickHandle = null;
 let audioCtx = null;
 
 // Drag
+let dragSrcGroupIdx = null;
 let dragSrcIdx = null;
 let dragOverIdx = null;
 
@@ -61,113 +62,6 @@ function esc(t) {
     c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-// ──────────────────────────────────────────────────────────────
-// Interval state mutations
-// ──────────────────────────────────────────────────────────────
-function addInterval(name, color, seconds) {
-  const id = nextId++;
-  intervals.push({
-    id,
-    name: name ?? `Interval ${intervals.length + 1}`,
-    color: color ?? COLORS[intervals.length % COLORS.length],
-    seconds: seconds ?? 20
-  });
-  renderSetup();
-}
-
-// ──────────────────────────────────────────────────────────────
-// Render setup
-// ──────────────────────────────────────────────────────────────
-function renderSetup() {
-  const list = document.getElementById('intervalsList');
-  list.innerHTML = intervals.map((iv, idx) => `
-    <div class="interval-row" data-idx="${idx}">
-      <div class="drag-handle" data-drag="${idx}">☰</div>
-      <input class="interval-name" draggable="false"
-             value="${esc(iv.name)}"
-             data-field="name" data-idx="${idx}" />
-      <div class="color-wrap">
-        <button class="color-circle"
-                style="background:${iv.color}"
-                data-color-btn="${idx}"
-                title="Change colour"></button>
-        <input class="color-input" type="color"
-               id="cp-${iv.id}" value="${iv.color}"
-               data-color-input="${idx}" />
-      </div>
-      <div class="time-controls">
-        <button class="btn-blk" data-minus="${idx}">−</button>
-        <input class="time-label" type="text"
-               value="${fmt(iv.seconds)}"
-               data-time-input="${idx}"
-               inputmode="numeric" />
-        <button class="btn-blk" data-plus="${idx}">+</button>
-      </div>
-      <button class="btn-blk delete" data-delete="${idx}">✕</button>
-    </div>
-  `).join('');
-
-  document.getElementById('roundsDisplay').textContent = rounds;
-}
-
-// ──────────────────────────────────────────────────────────────
-// Event delegation — setup view
-// ──────────────────────────────────────────────────────────────
-document.getElementById('intervalsList').addEventListener('click', e => {
-  const el = e.target;
-
-  // Delete
-  if (el.dataset.delete !== undefined) {
-    const idx = +el.dataset.delete;
-    intervals.splice(idx, 1);
-    renderSetup();
-    return;
-  }
-
-  // Time +5
-  if (el.dataset.plus !== undefined) {
-    intervals[+el.dataset.plus].seconds += 5;
-    renderSetup();
-    return;
-  }
-
-  // Time -5
-  if (el.dataset.minus !== undefined) {
-    const iv = intervals[+el.dataset.minus];
-    iv.seconds = Math.max(5, iv.seconds - 5);
-    renderSetup();
-    return;
-  }
-
-  // Color circle → open hidden input
-  if (el.dataset.colorBtn !== undefined) {
-    const iv = intervals[+el.dataset.colorBtn];
-    document.getElementById(`cp-${iv.id}`)?.click();
-    return;
-  }
-});
-
-// Name changes
-document.getElementById('intervalsList').addEventListener('change', e => {
-  const el = e.target;
-  if (el.dataset.field === 'name' && el.dataset.idx !== undefined) {
-    intervals[+el.dataset.idx].name = el.value;
-  }
-  if (el.dataset.colorInput !== undefined) {
-    const idx = +el.dataset.colorInput;
-    intervals[idx].color = el.value;
-    renderSetup();
-  }
-  if (el.dataset.timeInput !== undefined) {
-    const idx = +el.dataset.timeInput;
-    const secs = parseTimeInput(el.value);
-    if (secs !== null) {
-      intervals[idx].seconds = Math.max(5, secs);
-    }
-    renderSetup(); // always re-render to normalise display
-  }
-});
-
 function parseTimeInput(val) {
   val = val.trim().replace(/\s/g, '');
   // Formats: "1:30", "130", "90"
@@ -185,90 +79,241 @@ function parseTimeInput(val) {
   return n; // plain seconds
 }
 
+// ──────────────────────────────────────────────────────────────
+// Group interval mutations
+// ──────────────────────────────────────────────────────────────
+function addIntervalToGroup(g, name, color, seconds) {
+  const grp = groups[g];
+  const id = nextId++;
+  grp.intervals.push({
+    id,
+    name: name ?? `Interval ${grp.intervals.length + 1}`,
+    color: color ?? COLORS[grp.intervals.length % COLORS.length],
+    seconds: seconds ?? 20
+  });
+  renderGroups();
+}
+
+// ──────────────────────────────────────────────────────────────
+// Render groups
+// ──────────────────────────────────────────────────────────────
+function renderGroupCard(g) {
+  const grp = groups[g];
+  const accent = grp.intervals[0] ? grp.intervals[0].color : '#222';
+
+  const rows = grp.intervals.map((iv, idx) => `
+    <div class="interval-row" data-group="${g}" data-idx="${idx}">
+      <div class="drag-handle" data-drag="${idx}" data-group="${g}">☰</div>
+      <input class="interval-name" draggable="false"
+             value="${esc(iv.name)}"
+             data-field="name" data-group="${g}" data-idx="${idx}" />
+      <div class="color-wrap">
+        <button class="color-circle"
+                style="background:${iv.color}"
+                data-color-btn="${idx}" data-group="${g}"
+                title="Change colour"></button>
+        <input class="color-input" type="color"
+               id="cp-${iv.id}" value="${iv.color}"
+               data-color-input="${idx}" data-group="${g}" />
+      </div>
+      <div class="time-controls">
+        <button class="btn-blk" data-minus="${idx}" data-group="${g}">−</button>
+        <input class="time-label" type="text"
+               value="${fmt(iv.seconds)}"
+               data-time-input="${idx}" data-group="${g}"
+               inputmode="numeric" />
+        <button class="btn-blk" data-plus="${idx}" data-group="${g}">+</button>
+      </div>
+      <button class="btn-blk delete" data-delete="${idx}" data-group="${g}">✕</button>
+    </div>
+  `).join('');
+
+  return `
+    <div class="group-card" data-group-card="${g}">
+      <div class="group-header" style="border-left-color:${accent}">
+        <h2>${esc(grp.name)}</h2>
+        <p class="group-detail">${esc(grp.detail)}</p>
+      </div>
+      <div class="group-intervals">${rows}</div>
+      <div class="group-footer">
+        <button class="btn-add" data-add-group="${g}">＋ Add Interval</button>
+        <div class="rounds-controls">
+          <button class="btn-outline" data-rounds-minus="${g}">−</button>
+          <span class="rounds-display" data-rounds-display="${g}">${grp.rounds}</span>
+          <button class="btn-outline" data-rounds-plus="${g}">+</button>
+        </div>
+      </div>
+      <button class="btn-start-group" data-start-group="${g}">START</button>
+    </div>
+  `;
+}
+
+function renderGroups() {
+  document.getElementById('groupsList').innerHTML =
+    groups.map((_, g) => renderGroupCard(g)).join('');
+}
+
+// ──────────────────────────────────────────────────────────────
+// Event delegation — groups view
+// ──────────────────────────────────────────────────────────────
+document.getElementById('groupsView').addEventListener('click', e => {
+  const el = e.target;
+
+  if (el.dataset.delete !== undefined) {
+    const g = +el.dataset.group, idx = +el.dataset.delete;
+    groups[g].intervals.splice(idx, 1);
+    renderGroups();
+    return;
+  }
+
+  if (el.dataset.plus !== undefined) {
+    const g = +el.dataset.group, idx = +el.dataset.plus;
+    groups[g].intervals[idx].seconds += 5;
+    renderGroups();
+    return;
+  }
+
+  if (el.dataset.minus !== undefined) {
+    const g = +el.dataset.group, idx = +el.dataset.minus;
+    const iv = groups[g].intervals[idx];
+    iv.seconds = Math.max(5, iv.seconds - 5);
+    renderGroups();
+    return;
+  }
+
+  if (el.dataset.colorBtn !== undefined) {
+    const g = +el.dataset.group, idx = +el.dataset.colorBtn;
+    const iv = groups[g].intervals[idx];
+    document.getElementById(`cp-${iv.id}`)?.click();
+    return;
+  }
+
+  if (el.dataset.addGroup !== undefined) {
+    addIntervalToGroup(+el.dataset.addGroup);
+    return;
+  }
+
+  if (el.dataset.roundsMinus !== undefined) {
+    const g = +el.dataset.roundsMinus;
+    groups[g].rounds = Math.max(1, groups[g].rounds - 1);
+    document.querySelector(`[data-rounds-display="${g}"]`).textContent = groups[g].rounds;
+    return;
+  }
+
+  if (el.dataset.roundsPlus !== undefined) {
+    const g = +el.dataset.roundsPlus;
+    groups[g].rounds++;
+    document.querySelector(`[data-rounds-display="${g}"]`).textContent = groups[g].rounds;
+    return;
+  }
+
+  if (el.dataset.startGroup !== undefined) {
+    startGroupTimer(+el.dataset.startGroup);
+    return;
+  }
+});
+
+// Name / color / time field changes
+document.getElementById('groupsView').addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.field === 'name' && el.dataset.idx !== undefined) {
+    const g = +el.dataset.group, idx = +el.dataset.idx;
+    groups[g].intervals[idx].name = el.value;
+  }
+  if (el.dataset.colorInput !== undefined) {
+    const g = +el.dataset.group, idx = +el.dataset.colorInput;
+    groups[g].intervals[idx].color = el.value;
+    renderGroups();
+  }
+  if (el.dataset.timeInput !== undefined) {
+    const g = +el.dataset.group, idx = +el.dataset.timeInput;
+    const secs = parseTimeInput(el.value);
+    if (secs !== null) {
+      groups[g].intervals[idx].seconds = Math.max(5, secs);
+    }
+    renderGroups(); // always re-render to normalise display
+  }
+});
+
 // Live color preview
-document.getElementById('intervalsList').addEventListener('input', e => {
+document.getElementById('groupsView').addEventListener('input', e => {
   const el = e.target;
   if (el.dataset.colorInput !== undefined) {
-    const idx = +el.dataset.colorInput;
-    intervals[idx].color = el.value;
-    // Fast update without full re-render
-    const btn = document.querySelector(`[data-color-btn="${idx}"]`);
+    const g = +el.dataset.group, idx = +el.dataset.colorInput;
+    groups[g].intervals[idx].color = el.value;
+    const btn = document.querySelector(`[data-color-btn="${idx}"][data-group="${g}"]`);
     if (btn) btn.style.background = el.value;
   }
 });
 
-// Rounds
-document.getElementById('roundsMinus').addEventListener('click', () => {
-  rounds = Math.max(1, rounds - 1);
-  document.getElementById('roundsDisplay').textContent = rounds;
-});
-document.getElementById('roundsPlus').addEventListener('click', () => {
-  rounds++;
-  document.getElementById('roundsDisplay').textContent = rounds;
-});
-
-document.getElementById('addBtn').addEventListener('click', () => addInterval());
-
 // ──────────────────────────────────────────────────────────────
-// Drag to reorder
+// Drag to reorder (scoped to one group — cross-group drop is a no-op)
 // ──────────────────────────────────────────────────────────────
-document.getElementById('intervalsList').addEventListener('mousedown', e => {
+document.getElementById('groupsView').addEventListener('mousedown', e => {
   const handle = e.target.closest('[data-drag]');
   if (!handle) return;
+  dragSrcGroupIdx = +handle.dataset.group;
   dragSrcIdx = +handle.dataset.drag;
   e.preventDefault();
 
   const onMove = ev => {
     const row = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.interval-row');
-    const overIdx = row ? +row.dataset.idx : null;
+    if (!row) return;
+    const overGroupIdx = +row.dataset.group;
+    const overIdx = +row.dataset.idx;
+    if (overGroupIdx !== dragSrcGroupIdx) return; // no cross-group reordering
 
-    if (overIdx !== null && overIdx !== dragSrcIdx && overIdx !== dragOverIdx) {
+    if (overIdx !== dragSrcIdx && overIdx !== dragOverIdx) {
       dragOverIdx = overIdx;
-      const [item] = intervals.splice(dragSrcIdx, 1);
-      intervals.splice(overIdx, 0, item);
+      const list = groups[dragSrcGroupIdx].intervals;
+      const [item] = list.splice(dragSrcIdx, 1);
+      list.splice(overIdx, 0, item);
       dragSrcIdx = overIdx;
-      renderSetup();
-      // Re-mark dragging row
-      document.querySelector(`.interval-row[data-idx="${dragSrcIdx}"]`)
+      renderGroups();
+      document.querySelector(`.interval-row[data-group="${dragSrcGroupIdx}"][data-idx="${dragSrcIdx}"]`)
                ?.classList.add('dragging');
     }
   };
 
   const onUp = () => {
-    dragSrcIdx = null; dragOverIdx = null;
+    dragSrcGroupIdx = null; dragSrcIdx = null; dragOverIdx = null;
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
-    renderSetup();
+    renderGroups();
   };
 
   document.addEventListener('mousemove', onMove);
   document.addEventListener('mouseup', onUp);
 
-  document.querySelector(`.interval-row[data-idx="${dragSrcIdx}"]`)
+  document.querySelector(`.interval-row[data-group="${dragSrcGroupIdx}"][data-idx="${dragSrcIdx}"]`)
            ?.classList.add('dragging');
 });
 
-// Touch drag
-document.getElementById('intervalsList').addEventListener('touchstart', e => {
+document.getElementById('groupsView').addEventListener('touchstart', e => {
   const handle = e.target.closest('[data-drag]');
   if (!handle) return;
+  dragSrcGroupIdx = +handle.dataset.group;
   dragSrcIdx = +handle.dataset.drag;
 
   const onMove = ev => {
     ev.preventDefault();
     const touch = ev.touches[0];
     const row = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.interval-row');
-    const overIdx = row ? +row.dataset.idx : null;
+    if (!row) return;
+    const overGroupIdx = +row.dataset.group;
+    const overIdx = +row.dataset.idx;
+    if (overGroupIdx !== dragSrcGroupIdx) return;
 
-    if (overIdx !== null && overIdx !== dragSrcIdx) {
-      const [item] = intervals.splice(dragSrcIdx, 1);
-      intervals.splice(overIdx, 0, item);
+    if (overIdx !== dragSrcIdx) {
+      const list = groups[dragSrcGroupIdx].intervals;
+      const [item] = list.splice(dragSrcIdx, 1);
+      list.splice(overIdx, 0, item);
       dragSrcIdx = overIdx;
-      renderSetup();
+      renderGroups();
     }
   };
   const onEnd = () => {
-    dragSrcIdx = null;
+    dragSrcGroupIdx = null; dragSrcIdx = null;
     document.removeEventListener('touchmove', onMove);
     document.removeEventListener('touchend', onEnd);
   };
@@ -277,31 +322,32 @@ document.getElementById('intervalsList').addEventListener('touchstart', e => {
 }, { passive: true });
 
 // ──────────────────────────────────────────────────────────────
-// Start Timer
+// Start Timer (per group)
 // ──────────────────────────────────────────────────────────────
-document.getElementById('startBtn').addEventListener('click', () => {
-  if (intervals.length === 0) { alert('Add at least one interval first.'); return; }
+function startGroupTimer(g) {
+  const grp = groups[g];
+  if (grp.intervals.length === 0) { alert('Add at least one interval first.'); return; }
 
   ensureAudio(); // create AudioContext inside user gesture
+  activeGroupIdx = g;
 
-  // Build flat sequence
+  // Build flat sequence for this group only
   seq = [];
-  for (let r = 1; r <= rounds; r++) {
-    intervals.forEach(iv => seq.push({ ...iv, round: r }));
+  for (let r = 1; r <= grp.rounds; r++) {
+    grp.intervals.forEach(iv => seq.push({ ...iv, round: r }));
   }
 
   seqIdx = 0;
   timeLeft = seq[0].seconds;
   totalTime = seq[0].seconds;
-  warningFired = false;
 
-  document.getElementById('setupView').classList.add('hidden');
+  document.getElementById('groupsView').classList.add('hidden');
   document.getElementById('timerView').classList.add('active');
   document.getElementById('stopBtn').textContent = 'STOP';
 
   updateTimerUI();
   tickHandle = setInterval(tick, 1000);
-});
+}
 
 // ──────────────────────────────────────────────────────────────
 // Tick
@@ -335,7 +381,6 @@ function tick() {
     intervalEndBeep();
     timeLeft = seq[seqIdx].seconds;
     totalTime = seq[seqIdx].seconds;
-    warningFired = false;
   }
 
   updateTimerUI();
@@ -346,6 +391,7 @@ function tick() {
 // ──────────────────────────────────────────────────────────────
 function updateTimerUI() {
   const cur = seq[seqIdx];
+  const grp = groups[activeGroupIdx];
 
   // Name & color
   const nameEl = document.getElementById('timerName');
@@ -356,7 +402,7 @@ function updateTimerUI() {
   document.getElementById('timerCountdown').textContent = fmt(timeLeft);
 
   // Round badge
-  document.getElementById('timerRoundBadge').textContent = `Round ${cur.round} of ${rounds}`;
+  document.getElementById('timerRoundBadge').textContent = `Round ${cur.round} of ${grp.rounds}`;
 
   // Ring progress
   const fraction = timeLeft / totalTime;
@@ -366,8 +412,8 @@ function updateTimerUI() {
   ring.setAttribute('stroke', cur.color);
 
   // Mini queue for current round
-  const roundBase = (cur.round - 1) * intervals.length;
-  const queueHtml = intervals.map((iv, i) => {
+  const roundBase = (cur.round - 1) * grp.intervals.length;
+  const queueHtml = grp.intervals.map((iv, i) => {
     const si = roundBase + i;
     const cls = si === seqIdx ? 'active' : si < seqIdx ? 'done' : '';
     return `<div class="tqi ${cls}">
@@ -391,18 +437,16 @@ function updateTimerUI() {
 document.getElementById('stopBtn').addEventListener('click', () => {
   clearInterval(tickHandle); tickHandle = null;
   document.getElementById('timerView').classList.remove('active');
-  document.getElementById('setupView').classList.remove('hidden');
+  document.getElementById('groupsView').classList.remove('hidden');
   // Reset timer name color
   document.getElementById('timerName').style.color = '';
+  activeGroupIdx = null;
 });
 
 // ──────────────────────────────────────────────────────────────
 // Day selection
 // ──────────────────────────────────────────────────────────────
 let currentDayId = null;
-
-const WARMUP_COLOR = '#3F9142';
-const COOLDOWN_COLOR = '#707070';
 
 function renderDayButtons() {
   const wrap = document.getElementById('dayButtons');
@@ -431,6 +475,9 @@ function renderPlanSection(section) {
   `;
 }
 
+const WARMUP_COLOR = '#3F9142';
+const COOLDOWN_COLOR = '#707070';
+
 function renderPlanPanel(dayId) {
   const day = DAYS[dayId];
   const panel = document.getElementById('planPanel');
@@ -456,14 +503,18 @@ function selectDay(dayId) {
   if (!day) return;
 
   currentDayId = dayId;
-  intervals = day.intervals.map(iv => ({
-    id: nextId++,
-    name: iv.name,
-    color: iv.color,
-    seconds: iv.seconds
+  groups = day.groups.map(grp => ({
+    name: grp.name,
+    detail: grp.detail,
+    rounds: 1,
+    intervals: grp.intervals.map(iv => ({
+      id: nextId++,
+      name: iv.name,
+      color: iv.color,
+      seconds: iv.seconds
+    }))
   }));
-  rounds = 1;
-  renderSetup();
+  renderGroups();
   renderPlanPanel(dayId);
 
   document.getElementById('landingView').classList.remove('active');
@@ -473,12 +524,14 @@ function selectDay(dayId) {
 function backToLanding() {
   if (tickHandle) { clearInterval(tickHandle); tickHandle = null; }
   document.getElementById('timerView').classList.remove('active');
-  document.getElementById('setupView').classList.remove('hidden');
+  document.getElementById('groupsView').classList.remove('hidden');
   document.getElementById('timerName').style.color = '';
 
   document.getElementById('dayView').classList.remove('active');
   document.getElementById('landingView').classList.add('active');
   currentDayId = null;
+  groups = [];
+  activeGroupIdx = null;
 }
 
 document.getElementById('dayButtons').addEventListener('click', e => {
