@@ -26,21 +26,39 @@ const DAYS = {
       }
     ],
     cooldownHtml: '<p>Mellizom nyújtás ajtófélfánál — 30 mp/oldal. Válltok nyújtás (kar átfogva) — 30 mp/oldal. Rekeszlégzés — 2 perc.</p>',
-    intervals: [
-      { name: 'Jab+Cross (1/3)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Jab+Cross (2/3)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Jab+Cross (3/3)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Hook (1/2)', color: '#CC2222', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Hook (2/2)', color: '#CC2222', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Teep (1/2)', color: '#6666CC', seconds: 60 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Teep (2/2)', color: '#6666CC', seconds: 60 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+    groups: [
+      {
+        name: 'Jab+Cross',
+        detail: '3×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Jab+Cross (1/3)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Jab+Cross (2/3)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Jab+Cross (3/3)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Hook',
+        detail: '2×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Hook (1/2)', color: '#CC2222', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Hook (2/2)', color: '#CC2222', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Teep',
+        detail: '2×1 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Teep (1/2)', color: '#6666CC', seconds: 60 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Teep (2/2)', color: '#6666CC', seconds: 60 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      }
     ]
   },
   B: {
@@ -78,31 +96,55 @@ const DAYS = {
       }
     ],
     cooldownHtml: '<p>Csípőhajlító nyújtás — 40 mp/oldal. Macska-tehén mozgás matacon — 1 perc.</p>',
-    intervals: [
-      { name: 'Low kick (1/3)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Low kick (2/3)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Low kick (3/3)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Middle kick (1/3)', color: '#CC2222', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Middle kick (2/3)', color: '#CC2222', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Middle kick (3/3)', color: '#CC2222', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó: Jab-Cross-Middle kick (1/2)', color: '#6666CC', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó: Jab-Cross-Middle kick (2/2)', color: '#6666CC', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Max intenzitás zsákon (1/4)', color: '#CC2222', seconds: 30 },
-      { name: 'Lassú árnyékbox (1/4)', color: '#6666CC', seconds: 30 },
-      { name: 'Max intenzitás zsákon (2/4)', color: '#CC2222', seconds: 30 },
-      { name: 'Lassú árnyékbox (2/4)', color: '#6666CC', seconds: 30 },
-      { name: 'Max intenzitás zsákon (3/4)', color: '#CC2222', seconds: 30 },
-      { name: 'Lassú árnyékbox (3/4)', color: '#6666CC', seconds: 30 },
-      { name: 'Max intenzitás zsákon (4/4)', color: '#CC2222', seconds: 30 },
-      { name: 'Lassú árnyékbox (4/4)', color: '#6666CC', seconds: 30 }
+    groups: [
+      {
+        name: 'Low kick',
+        detail: '3×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Low kick (1/3)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Low kick (2/3)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Low kick (3/3)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Middle kick',
+        detail: '3×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Middle kick (1/3)', color: '#CC2222', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Middle kick (2/3)', color: '#CC2222', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Middle kick (3/3)', color: '#CC2222', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Kombó: Jab-Cross-Middle kick',
+        detail: '2×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Kombó: Jab-Cross-Middle kick (1/2)', color: '#6666CC', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Kombó: Jab-Cross-Middle kick (2/2)', color: '#6666CC', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Kardio finish',
+        detail: '4× (30 mp max intenzitás zsákon · 30 mp lassú árnyékbox)',
+        intervals: [
+          { name: 'Max intenzitás zsákon (1/4)', color: '#CC2222', seconds: 30 },
+          { name: 'Lassú árnyékbox (1/4)', color: '#6666CC', seconds: 30 },
+          { name: 'Max intenzitás zsákon (2/4)', color: '#CC2222', seconds: 30 },
+          { name: 'Lassú árnyékbox (2/4)', color: '#6666CC', seconds: 30 },
+          { name: 'Max intenzitás zsákon (3/4)', color: '#CC2222', seconds: 30 },
+          { name: 'Lassú árnyékbox (3/4)', color: '#6666CC', seconds: 30 },
+          { name: 'Max intenzitás zsákon (4/4)', color: '#CC2222', seconds: 30 },
+          { name: 'Lassú árnyékbox (4/4)', color: '#6666CC', seconds: 30 }
+        ]
+      }
     ]
   },
   C: {
@@ -142,23 +184,47 @@ const DAYS = {
       }
     ],
     cooldownHtml: '',
-    intervals: [
-      { name: 'Kombó 1: Jab-Cross-Hook-Cross (1/2)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó 1: Jab-Cross-Hook-Cross (2/2)', color: '#FFA500', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó 2: Teep-Jab-Cross-Middle kick (1/2)', color: '#CC2222', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó 2: Teep-Jab-Cross-Middle kick (2/2)', color: '#CC2222', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó 3: Hook-Body shot-Low kick (1/2)', color: '#6666CC', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó 3: Hook-Body shot-Low kick (2/2)', color: '#6666CC', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó 4: Jab-Cross-Clinch-Térdütés (1/2)', color: '#00AABB', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
-      { name: 'Kombó 4: Jab-Cross-Clinch-Térdütés (2/2)', color: '#00AABB', seconds: 120 },
-      { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+    groups: [
+      {
+        name: 'Kombó 1: Jab-Cross-Hook-Cross',
+        detail: '2×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Kombó 1: Jab-Cross-Hook-Cross (1/2)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Kombó 1: Jab-Cross-Hook-Cross (2/2)', color: '#FFA500', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Kombó 2: Teep-Jab-Cross-Middle kick',
+        detail: '2×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Kombó 2: Teep-Jab-Cross-Middle kick (1/2)', color: '#CC2222', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Kombó 2: Teep-Jab-Cross-Middle kick (2/2)', color: '#CC2222', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Kombó 3: Hook-Body shot-Low kick',
+        detail: '2×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Kombó 3: Hook-Body shot-Low kick (1/2)', color: '#6666CC', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Kombó 3: Hook-Body shot-Low kick (2/2)', color: '#6666CC', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      },
+      {
+        name: 'Kombó 4: Jab-Cross-Clinch-Térdütés',
+        detail: '2×2 perc, 30 mp pihenő',
+        intervals: [
+          { name: 'Kombó 4: Jab-Cross-Clinch-Térdütés (1/2)', color: '#00AABB', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 },
+          { name: 'Kombó 4: Jab-Cross-Clinch-Térdütés (2/2)', color: '#00AABB', seconds: 120 },
+          { name: 'Pihenő', color: '#BBDD00', seconds: 30 }
+        ]
+      }
     ]
   }
 };
