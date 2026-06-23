@@ -8,17 +8,33 @@ body {
   color: #111;
 }
 
-/* ─────────────── SETUP VIEW ─────────────── */
-#setupView { max-width: 680px; margin: 0 auto; }
-#setupView.hidden { display: none; }
+/* ─────────────── GROUPS VIEW ─────────────── */
+#groupsView { max-width: 680px; margin: 0 auto; }
+#groupsView.hidden { display: none; }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 22px;
+.volume-reminder {
+  text-align: center;
+  margin-bottom: 18px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  opacity: 0.85;
 }
-.page-header h1 { font-size: 2.2rem; font-weight: 800; }
+
+.group-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.09);
+}
+
+.group-header {
+  border-left: 6px solid #222;
+  padding-left: 12px;
+  margin-bottom: 14px;
+}
+.group-header h2 { font-size: 1.3rem; font-weight: 800; }
+.group-detail { font-size: .85rem; opacity: .7; margin-top: 2px; }
 
 .btn-add {
   background: #fff;
@@ -33,7 +49,7 @@ body {
 .btn-add:hover { background: #f0f0f0; }
 
 /* Interval rows */
-#intervalsList { display: flex; flex-direction: column; gap: 12px; margin-bottom: 30px; }
+.group-intervals { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
 
 .interval-row {
   background: #fff;
@@ -124,36 +140,41 @@ body {
   box-shadow: 0 0 0 2px #888;
 }
 
-/* Rounds */
-.rounds-section { text-align: center; margin-bottom: 28px; }
-.rounds-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 14px; }
-.rounds-controls { display: flex; align-items: center; justify-content: center; gap: 20px; }
+/* Group footer: add-interval + rounds */
+.group-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.rounds-controls { display: flex; align-items: center; justify-content: center; gap: 14px; }
 .btn-outline {
-  width: 52px; height: 52px;
+  width: 40px; height: 40px;
   border: 2.5px solid #222;
   border-radius: 10px;
   background: #fff;
-  font-size: 1.7rem;
+  font-size: 1.4rem;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background .15s;
 }
 .btn-outline:hover { background: #f0f0f0; }
-#roundsDisplay { font-size: 1.5rem; font-weight: 800; min-width: 36px; text-align: center; }
+.rounds-display { font-size: 1.2rem; font-weight: 800; min-width: 30px; text-align: center; }
 
-/* Start */
-.btn-start {
+/* Group start button */
+.btn-start-group {
   display: block;
-  width: 100%; max-width: 680px;
-  margin: 0 auto;
-  padding: 54px;
+  width: 100%;
+  padding: 18px;
   background: #111; color: #fff;
-  border: none; border-radius: 14px;
-  font-size: 4.5rem; font-weight: 800; letter-spacing: 3px;
+  border: none; border-radius: 12px;
+  font-size: 1.6rem; font-weight: 800; letter-spacing: 2px;
   cursor: pointer;
   transition: background .15s;
 }
-.btn-start:hover { background: #333; }
+.btn-start-group:hover { background: #333; }
 
 /* ─────────────── TIMER VIEW ─────────────── */
 #timerView {
@@ -333,7 +354,7 @@ body {
 @media (max-width: 600px) {
   body { padding: 16px 12px 32px; }
 
-  .page-header h1 { font-size: 1.6rem; }
+  .group-header h2 { font-size: 1.1rem; }
   .btn-add { padding: 8px 14px; font-size: .85rem; }
 
   /* Interval rows: stack name on its own line */
@@ -352,13 +373,13 @@ body {
   .btn-blk { width: 36px; height: 36px; font-size: 1.3rem; }
   .time-label { width: 54px; font-size: 1rem; }
 
-  .btn-outline { width: 44px; height: 44px; font-size: 1.4rem; }
-  #roundsDisplay { font-size: 1.3rem; }
+  .btn-outline { width: 36px; height: 36px; font-size: 1.2rem; }
+  .rounds-display { font-size: 1.05rem; }
 
-  .btn-start {
-    padding: 20px;
-    font-size: 2rem;
-    max-width: 100%;
+  .group-card { padding: 14px; }
+  .btn-start-group {
+    padding: 14px;
+    font-size: 1.3rem;
   }
 
   #dayView.active { flex-direction: column; }
